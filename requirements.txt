@@ -1,0 +1,5 @@
+django
+pyrogram
+bs4
+lxml
+django-ckeditor
