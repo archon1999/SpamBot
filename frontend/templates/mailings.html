@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{{ form.errors }}
+{% block content %}
+<div class="col-12">
+  <div class="layout-spacing">    
+    <div class="col-lg-6 col-md-10 col-sm-12">
+      {% if created %}
+      <div class="alert alert-light-success border-0 mb-4" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>
+        <strong>Успешно!</strong> Рассылка создана.</button>
+      </div>
+      {% endif %}
+      <h5 class="mt-2 mb-4 ml-1"><b>Создать рассылку</b></h5>
+      <form method="POST">
+        {% csrf_token %}
+        <label class="pl-1 text-dark"><b>Текст: </b></label><br>
+        {% if form.errors.text %}
+        <b class="pl-1 text-danger">{{ form.errors.text.0 }}</b>
+        {% endif %}
+        {{ form.text }}
+        <div class="form-group mb-3 mt-2">
+          <label class="pl-1 text-dark"><b>Кому: </b></label><br>
+          {% if form.errors.users %}
+          <b class="pl-1 text-danger">{{ form.errors.users.0 }}</b>
+          {% endif %}
+          <textarea name="users" rows=10 class="form-control"></textarea>
+          <small id="emailHelp1" class="form-text text-muted">Список юзернеймов в отдельной строке, без @.</small>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3 btn-rounded"><b>Создать</b></button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="/static/ckeditor/ckeditor-init.js" data-ckeditor-basepath="/static/ckeditor/ckeditor/" id="ckeditor-init-script"></script>
+<script src="/static/ckeditor/ckeditor/ckeditor.js"></script>
+
+{% endblock %}

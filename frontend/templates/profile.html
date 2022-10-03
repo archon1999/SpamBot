@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="col-12">
+  <div class="layout-spacing">
+    {% if success_buy %}
+    <div class="alert alert-light-success border-0 mb-4" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>
+      <strong>Успешно!</strong> Вы активировали тариф.</button>
+    </div>
+    {% endif %}
+
+    <div class="widget widget-content-area br-4">
+      <div class="widget-one">
+        <h4 class="text-center mb-2 mt-2">
+          <b>
+            Личный кабинет
+          </b>
+        </h4>
+
+        <div class="text-center mt-4">
+          <div class="user-info">
+            <p>Баланс: <b>{{ request.user.balance }} руб.</b></p>
+            <p>Доступно: <b>{{ request.user.available_messages_count }} сообщений</b></p>
+          </div>
+          <br>
+
+          <div class="col-lg-4 col-md-6 col-sm-12 mx-auto">
+            <form method="POST">
+              {% csrf_token %}
+              <label class="text-dark"><b>Сумма:</b></label> <input type="number" name="value" class="form-control">
+              <button type="submit" class="mt-2 btn btn-sm btn-rounded btn-primary">
+                <b>Пополнить баланс</b>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {% if request.user.balance_replenishments.exists %}
+        <hr>
+        <h5 class="text-center mt-4 mb-2"><b>История пополнение баланса</b></h5>
+        <div class="col-lg-4 col-md-6 col-sm-12 mx-auto">
+          <div class="table-responsive mt-4">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th class="text-center">Сумма</th>
+                  <th class="text-center">Дата и время</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for replenishment in request.user.balance_replenishments.all %}
+                <tr>
+                  <td class="text-center">
+                    <span class="badge badge-success">
+                      {{ replenishment.value }} руб.
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge outline-badge-success">
+                      {{ replenishment.created }}
+                    </span>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% endif %}
+        </div>
+
+        {% if request.user.purchases.exists %}
+        <hr>
+        <h5 class="text-center mt-4 mb-2"><b>История активации тарифов</b></h5>
+        <div class="col-lg-4 col-md-6 col-sm-12 mx-auto">
+          <div class="table-responsive mt-4">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th class="text-center">Тариф</th>
+                  <th class="text-center">Дата и время</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for purchase in request.user.purchases.all %}
+                <tr>
+                  <td class="text-center">
+                    <span class="badge badge-primary">
+                      {{ purchase.tarrif.name }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge outline-badge-success">
+                      {{ purchase.created }}
+                    </span>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if request.user.mailings.exists %}
+        <hr>
+        <h5 class="text-center mt-4 mb-2"><b>История рассылок</b></h5>
+        <div class="col-lg-4 col-md-6 col-sm-12 mx-auto">
+          <div class="table-responsive mt-4">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th class="text-center">Количество пользователей</th>
+                  <th class="text-center">Дата и время</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for mailing in request.user.mailings.all %}
+                <tr>
+                  <td class="text-center">
+                    <span class="badge badge-primary">
+                      {{ mailing.users_count }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge outline-badge-success">
+                      {{ mailing.created }}
+                    </span>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
