@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no">
-    <title>SMM-ANALITICS.RU</title>
+    <title>smmanalyze.ru</title>
     <link rel="icon" type="image/x-icon" href="/static/assets/img/favicon.ico" />
     <!-- BEGIN GLOBAL MANDATORY STYLES -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
@@ -28,7 +28,7 @@
             min-height: calc(100vh - 140px) !important;
         }
         .title {
-            font-size: 13px !important;
+            font-size: 15px !important;
             white-space: nowrap;
         }
         .theme-text {
@@ -39,6 +39,24 @@
         }
     </style>
 
+    <link href="/static/plugins/animate/animate.css" rel="stylesheet" type="text/css" />
+    <script src="/static/plugins/sweetalerts/promise-polyfill.js"></script>
+    <link href="/static/plugins/sweetalerts/sweetalert2.min.css" rel="stylesheet" type="text/css" />
+    <link href="/static/plugins/sweetalerts/sweetalert.css" rel="stylesheet" type="text/css" />
+    <link href="/static/assets/css/components/custom-sweetalert.css" rel="stylesheet" type="text/css" />
+
+    <style>
+    .swal2-modal .swal2-title {
+        font-family: 'Roboto' !important;
+        font-weight: 600 !important;
+    }
+
+    .swal2-modal .swal2-content {
+        font-size: 16px !important;
+        font-family: 'Roboto' !important;
+        font-weight: 600 !important;
+    }    
+    </style>
     <!-- END PAGE LEVEL PLUGINS/CUSTOM STYLES -->
 
 </head>
@@ -56,7 +74,7 @@
                     </a>
                 </li>
                 <li class="nav-item theme-text">
-                    <a href="" class="title"> SMM-ANALITICS.RU </a>
+                    <a href="" class="title"> smmanalyze.ru </a>
                 </li>
                 <li class="nav-item toggle-sidebar">
                     <a href="javascript:void(0);" class="sidebarCollapse" data-placement="bottom"><svg
@@ -91,7 +109,7 @@
                     <div class="dropdown-menu position-absolute" aria-labelledby="userProfileDropdown">
                         <div class="user-profile-section">
                             <div class="media mx-auto">
-                                <img src="/static/assets/img/90x90.jpg" class="img-fluid mr-2" alt="avatar">
+                                <img src="{% if request.user.avatar %}{{request.user.avatar.name }}{% else %}/static/assets/img/90x90.jpg{% endif %}" class="img-fluid mr-2" alt="avatar">
                                 <div class="media-body">
                                     <h5>admin</h5>
                                     <p>Баланс: {{ request.user.balance }} руб.</p>
@@ -115,7 +133,7 @@
             {% else %}
             <ul class="navbar-item flex-row navbar-dropdown ml-auto">
                 <li class="nav-item dropdown user-profile-dropdown text-white order-lg-0 order-1">
-                    <script async src="https://telegram.org/js/telegram-widget.js?19" data-telegram-login="cpython_bot" data-size="medium" data-radius="14" data-auth-url="https://cpython.uz/complete/telegram" data-request-access="write"></script>                    </div>                    
+                    <script async src="https://telegram.org/js/telegram-widget.js?19" data-telegram-login="CPAccountingBot" data-size="medium" data-radius="14" data-auth-url="https://smmanalyze.ru/complete/telegram" data-request-access="write"></script>                    </div>                    
                 </li>
             </ul>
             {% endif %}
@@ -139,7 +157,7 @@
                 <div class="profile-info">
                     <figure class="user-cover-image"></figure>
                     <div class="user-info">
-                        <img src="/static/assets/img/90x90.jpg" alt="avatar">
+                        <img src="{% if request.user.avatar %}{{request.user.avatar.url}}{% else %}/static/assets/img/90x90.jpg{% endif %}" alt="avatar">
                         <h6 class="mb-1">{{ request.user.username }}</h6>
                         <p>Баланс: <b>{{ request.user.balance }} руб.</b></p>
                         <p>Доступно: <b>{{ request.user.available_messages_count }} сообщений</b></p>
@@ -189,7 +207,7 @@
                         </a>
                     </li>
 
-                    {% if request.user.is_authenticated %}
+                    {% if 1 > 2 %}
                     <li class="menu {% if request.path == '/mailings' %} active {% endif %}">
                         <a href="/mailings" aria-expanded="{% if request.path == '/mailings' %}true{% endif %}" class="dropdown-toggle">
                             <div class="">
@@ -244,8 +262,23 @@
     <!-- END GLOBAL MANDATORY SCRIPTS -->
 
     <!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM SCRIPTS -->
+    <script src="/static/plugins/sweetalerts/sweetalert2.min.js"></script>
+    <script src="/static/plugins/sweetalerts/custom-sweetalert.js"></script>
 
+    {% if not request.user.is_authenticated %}
+    <script>
+        swal({
+            title: 'Внимание!',
+            text: "Для пользования услугами, пожалуйста авторизуйтесь с помощью телеграм-аккаунта!",
+            type: 'warning',
+            padding: '2em'
+        })
+    </script>
+    {% endif %}
+
+    {% block scripts %}
     <!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM SCRIPTS -->
+    {% endblock %}
 </body>
 
 </html>

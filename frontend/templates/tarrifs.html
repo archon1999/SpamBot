@@ -2,57 +2,114 @@
 
 {% block content %}
 <div class="col-12">
-    <div class="layout-spacing">
-        {% if error %}
-        <div class="alert alert-light-danger border-0 mb-4" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>
-            <strong>Ошибка!</strong> Не хватает денег. Пополните баланс.</button>
-        </div> 
-        {% endif %}
-        <div class="widget widget-content-area br-4">
-            <div class="widget-one">
-                <h4 class="text-center mb-2 mt-2">
-                    <b>
-                        Тарифы
-                    </b>
-                </h4>
-
-                <div class="table-responsive">
-                    <table class="table mt-2">
-                        <thead>
-                            <tr>
-                                <th>Название</th>
-                                <th>Количество сообщений</th>
-                                <th>Цена</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for tarrif in tarrifs %}
-                            <tr>
-                                <td><b>{{ tarrif.name }}</b></td>
-                                <td>
-                                    <span class="badge badge-info">{{ tarrif.messages_count }}</span>
-                                </td>
-                                <td>
-                                    <span class="badge outline-badge-success">
-                                        {{ tarrif.price }} руб.
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="/tarrifs/buy/{{ tarrif.id }}" class="btn btn-rounded btn-sm btn-primary">
-                                        <b>
-                                            Купить
-                                        </b>
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+  <div class="layout-spacing">
+    {% if error %}
+    <div class="alert alert-light-danger border-0 mb-4" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>
+      <strong>Ошибка!</strong> Не хватает денег. Пополните баланс.</button>
     </div>
+    {% endif %}
+    <div class="widget widget-content-area br-4">
+      <div class="widget-one">
+        <h4 class="text-center mb-2 mt-2">
+          <b>
+            Тарифы
+          </b>
+        </h4>
+
+        <div class="table-responsive">
+          <table class="table mt-2">
+            <thead>
+              <tr>
+                <th>Название</th>
+                <th>Количество сообщений</th>
+                <th>Цена</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for tarrif in tarrifs %}
+              <tr>
+                <td><b>{{ tarrif.name }}</b></td>
+                <td>
+                  <span class="badge badge-primary">{{ tarrif.messages_count }}</span>
+                </td>
+                <td>
+                  <span class="badge outline-badge-success">
+                    {{ tarrif.price }} руб.
+                  </span>
+                </td>
+                <td>
+                  <button onclick="buy_confirm({{ tarrif.id }})" class="btn btn-rounded btn-sm btn-primary">
+                    <b>Купить</b>
+                  </button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout-spacing">
+    {% if request.user.purchases.exists %}
+    <div class="widget widget-content-area layout-spacing br-4">
+      <div class="widget-one">
+        <h5 class="text-center mt-4 mb-2"><b>История активации тарифов</b></h5>
+        <div class="col-lg-4 col-md-6 col-sm-12 mx-auto">
+          <div class="table-responsive mt-4">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th class="text-center">Тариф</th>
+                  <th class="text-center">Дата и время</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for purchase in request.user.purchases.all %}
+                <tr>
+                  <td class="text-center">
+                    <span class="badge badge-primary">
+                      {{ purchase.tarrif.name }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge outline-badge-success">
+                      {{ purchase.created }}
+                    </span>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
 </div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function buy_confirm(tarrif_id) {
+    swal({
+      title: 'Потдверждение',
+      text: "Вы дейстительно хотите купить тариф?",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Да',
+      cancelButtonText: 'Отмена',
+      padding: '2em'
+    }).then(function (result) {
+      if (result.value) {
+        window.location.href = `/tarrifs/buy/${tarrif_id}`;
+      }
+    })
+  }
+</script>
 {% endblock %}

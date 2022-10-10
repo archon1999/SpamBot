@@ -23,9 +23,16 @@ class TelegramUser(models.Model):
         verbose_name_plural = 'Телеграм аккаунты'
 
 
+def avatar_directory_path(instance, filename):
+    return f'images/avatars/{instance.username}.jpg'
+
+
 class User(AbstractUser):
     balance = models.IntegerField(default=0)
     available_messages_count = models.IntegerField(default=10)
+    avatar = models.ImageField(upload_to=avatar_directory_path,
+                               null=True,
+                               blank=True)
 
 
 class Tarrif(models.Model):
@@ -42,26 +49,84 @@ class Tarrif(models.Model):
 
 
 class Mailing(models.Model):
+    class Status(models.IntegerChoices):
+        CREATED = 0, 'Ждет потдверждение'
+        RUNNING = 1, 'В работе'
+        FINISHED = 2, 'Завершен'
+        SCHEDULED = 3, 'Запланирован'
+
+    name = models.CharField(max_length=255)
     text = RichTextField()
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='mailings',
     )
+    status = models.IntegerField(default=Status.CREATED,
+                                 choices=Status.choices)
+    datetime = models.DateTimeField()
+    image = models.ImageField(upload_to='backend/images', null=True)
     users = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
 
     def users_count(self):
         return len(self.users.split())
 
-    def save(self, *args, **kwargs):
-        result = super().save(*args, **kwargs)
-        async_task('backend.tasks.mailing', self.id)
-        return result
+    def get_badge_class(self):
+        return {
+            Mailing.Status.CREATED: 'secondary',
+            Mailing.Status.RUNNING: 'warning',
+            Mailing.Status.FINISHED: 'success',
+            Mailing.Status.SCHEDULED: 'info',
+        }[self.status]
 
     class Meta:
+        ordering = ['-id']
         verbose_name = 'Рассылка'
         verbose_name_plural = 'Рассылки'
+
+
+class ParseredChat(models.Model):
+    class Status(models.IntegerChoices):
+        IN_QUEUE = 0, 'В очереди'
+        RUNNING = 1, 'В работе'
+        ERROR = 2, 'Ошибка'
+        OK = 3, 'ОК'
+
+    user = models.ForeignKey(
+        to=User,
+        on_delete=models.CASCADE,
+        related_name='parsered_chats',
+    )
+    status = models.IntegerField(choices=Status.choices,
+                                 default=Status.IN_QUEUE)
+    chat_name = models.CharField(max_length=255)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-id']
+
+    def get_badge_class(self):
+        return {
+            ParseredChat.Status.IN_QUEUE: 'secondary',
+            ParseredChat.Status.RUNNING: 'warning',
+            ParseredChat.Status.OK: 'success',
+            ParseredChat.Status.ERROR: 'danger',
+        }[self.status]
+
+
+class ChatMember(models.Model):
+    chat = models.ForeignKey(
+        to=ParseredChat,
+        on_delete=models.CASCADE,
+        related_name='members',
+    )
+    user_id = models.BigIntegerField()
+    first_name = models.CharField(max_length=255, null=True)
+    last_name = models.CharField(max_length=255)
+    username = models.CharField(max_length=255, null=True)
+    phone_number = models.CharField(max_length=255, null=True)
 
 
 class PurchaseTarrif(models.Model):

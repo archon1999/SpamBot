@@ -4,6 +4,7 @@ from django.urls import path, re_path, include
 from backend.views import TelegramuserCheckView
 
 urlpatterns = [
+    path('', include('social_django.urls', namespace='social')),
     re_path('^jet', include('jet.urls', 'jet')),
     path('admin/', admin.site.urls),
     path('', include('frontend.urls')),

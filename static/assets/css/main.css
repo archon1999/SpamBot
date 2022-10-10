@@ -706,20 +706,20 @@ select.form-control.form-custom {
 /*      Default Buttons       */
 .btn-primary {
   color: #fff !important;
-  background-color: #4361ee !important;
-  border-color: #4361ee;
-  box-shadow: 0 10px 20px -10px #4361ee; }
+  background-color: #51a7b8 !important;
+  border-color: #51a7b8;
+  box-shadow: 0 10px 20px -10px #51a7b8; }
   .btn-primary:hover, .btn-primary:focus {
     color: #fff !important;
-    background-color: #4361ee;
+    background-color: #51a7b8;
     box-shadow: none;
-    border-color: #4361ee; }
+    border-color: #51a7b8; }
   .btn-primary:active, .btn-primary.active {
-    background-color: #4361ee;
-    border-top: 1px solid #4361ee; }
+    background-color: #51a7b8;
+    border-top: 1px solid #51a7b8; }
   .btn-primary.disabled, .btn-primary.btn[disabled], .btn-primary:disabled {
-    background-color: #4361ee;
-    border-color: #4361ee;
+    background-color: #51a7b8;
+    border-color: #51a7b8;
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none; }
@@ -1395,7 +1395,7 @@ select.form-control.form-custom {
 
 .badge-primary {
   color: #fff;
-  background-color: #4361ee; }
+  background-color: #51a7b8; }
 
 .badge-info {
   color: #fff;

@@ -2,38 +2,421 @@
 
 {{ form.errors }}
 {% block content %}
+<link href="/static/plugins/file-upload/file-upload-with-preview.min.css" rel="stylesheet" type="text/css" />
+<link href="/static/assets/css/components/tabs-accordian/custom-tabs.css" rel="stylesheet" type="text/css" />
+<link href="/static/plugins/flatpickr/flatpickr.css" rel="stylesheet" type="text/css">
+<link href="/static/plugins/noUiSlider/nouislider.min.css" rel="stylesheet" type="text/css">
+<link href="/static/plugins/flatpickr/custom-flatpickr.css" rel="stylesheet" type="text/css">
+<link href="/static/plugins/noUiSlider/custom-nouiSlider.css" rel="stylesheet" type="text/css">
+<link href="/static/plugins/bootstrap-range-Slider/bootstrap-slider.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="/static/assets/css/forms/theme-checkbox-radio.css">
+
+<style>
+  .custom-file-container__image-preview {
+    margin-top: 0px !important;
+  }
+</style>
+
 <div class="col-12">
-  <div class="layout-spacing">    
-    <div class="col-lg-6 col-md-10 col-sm-12">
+  <div class="layout-spacing">
+    <div class="col-lg-7 col-md-10 col-sm-12 underline-content">
       {% if created %}
       <div class="alert alert-light-success border-0 mb-4" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>
         <strong>Успешно!</strong> Рассылка создана.</button>
       </div>
       {% endif %}
-      <h5 class="mt-2 mb-4 ml-1"><b>Создать рассылку</b></h5>
-      <form method="POST">
-        {% csrf_token %}
-        <label class="pl-1 text-dark"><b>Текст: </b></label><br>
-        {% if form.errors.text %}
-        <b class="pl-1 text-danger">{{ form.errors.text.0 }}</b>
-        {% endif %}
-        {{ form.text }}
-        <div class="form-group mb-3 mt-2">
-          <label class="pl-1 text-dark"><b>Кому: </b></label><br>
-          {% if form.errors.users %}
-          <b class="pl-1 text-danger">{{ form.errors.users.0 }}</b>
+
+      <ul class="nav nav-tabs  mb-3" id="lineTab" role="tablist">
+        <li class="nav-item">
+          <a onclick="mailing_on_click()" class="nav-link {% if tab == 'mailing' %}active{% endif %}"
+            id="underline-mailing-tab" data-toggle="tab" href="#underline-mailing" role="tab"
+            aria-controls="underline-mailing" aria-selected="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="feather feather-send">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+            <strong>
+              Рассылка
+            </strong>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a onclick="my_mailings_on_click()" class="nav-link {% if tab == 'my-mailings' %}active{% endif %}"
+            id="underline-my-mailings-tab" data-toggle="tab" href="#underline-my-mailings" role="tab"
+            aria-controls="underline-my-mailings" aria-selected="false">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="feather feather-send">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+            <strong>
+              Мои рассылки
+            </strong>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a onclick="parser_on_click()" class="nav-link {% if tab == 'parser-mailings' %}active{% endif %}"
+            id="underline-parser-tab" data-toggle="tab" href="#underline-parser" role="tab"
+            aria-controls="underline-parser" aria-selected="false">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="feather feather-link">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+            </svg>
+            <strong>
+              Парсер
+            </strong>
+          </a>
+        </li>
+
+      </ul>
+
+      <div class="tab-content" id="lineTabContent-3">
+        <div class="tab-pane fade {% if tab == 'mailing' %}show active{% endif %}" id="underline-mailing"
+          role="tabpanel" aria-labelledby="underline-mailing-tab">
+
+          {% if form.errors %}
+          <div class="alert alert-light-danger border-0 mb-4" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>
+            <strong>Ошибка!</strong> Не удалось создать рассылку.</button>
+          </div>
           {% endif %}
-          <textarea name="users" rows=10 class="form-control"></textarea>
-          <small id="emailHelp1" class="form-text text-muted">Список юзернеймов в отдельной строке, без @.</small>
+
+          <h5 class="mt-2 mb-4 ml-1"><b>Создать рассылку</b></h5>
+          <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group mb-3 mt-2">
+              <label class="pl-1 text-dark"><b>Название: </b></label><br>
+              {% if form.errors.name %}
+              <b class="pl-1 text-danger">{{ form.errors.name.0 }}</b>
+              {% endif %}
+              <input type="text" {% if form.name.value %}value="{{ form.name.value }}" {% endif %} class="form-control"
+                name="name">
+            </div>
+
+            <div class="form-group mb-3 mt-2">
+              <label class="pl-1 text-dark"><b>Текст: </b></label><br>
+              {% if form.errors.text %}
+              <b class="pl-1 text-danger">{{ form.errors.text.0 }}</b>
+              {% endif %}
+              {{ form.text }}
+            </div>
+
+            <div class="form-group mb-3 mt-2">
+              <label class="pl-1 text-dark"><b>Изображение: </b></label><br>
+              {% if form.errors.image %}
+              <b class="pl-1 text-danger">{{ form.errors.image.0 }}</b>
+              {% endif %}
+              <div class="custom-file-container" data-upload-id="upload-image">
+                <label class="custom-file-container__custom-file">
+                  <input type="file" class="custom-file-container__custom-file__custom-file-input" name="image"
+                    accept="image/*">
+                  <input type="hidden" name="MAX_FILE_SIZE" value="10485760" />
+                  <span class="custom-file-container__custom-file__custom-file-control"></span>
+                </label>
+                <label class="pl-1">Загрузить <a href="javascript:void(0)" class="custom-file-container__image-clear"
+                    title="Clear Image">x</a></label>
+                <div class="custom-file-container__image-preview"></div>
+              </div>
+            </div>
+
+            <div class="form-group mb-3 mt-2">
+              <label class="pl-1 text-dark"><b>Кому: </b></label><br>
+              {% if form.errors.users %}
+              <b class="pl-1 text-danger">{{ form.errors.users.0 }}</b>
+              {% endif %}
+              <textarea name="users" rows=10
+                class="form-control">{% if form.users.value %}{{ form.users.value }}{% endif %}</textarea>
+              <small id="emailHelp1" class="form-text text-muted">Список юзернеймов/юзерайди в отдельной строке, без
+                @.</small>
+            </div>
+
+            <div class="form-group mb-3 mt-2">
+              <div class="custom-file mb-4">
+                <style>
+                  .custom-file {
+                    height: 0px !important;
+                    padding: 0px !important;
+                    margin-bottom: 0px !important;
+                  }
+                </style>
+                <div class="custom-file-container" data-upload-id="upload-file">
+                  {% if form.errors.file %}
+                  <b class="pl-1 text-danger">{{ form.errors.file.0 }}</b>
+                  {% endif %}
+                  <label class="custom-file-container__custom-file">
+                    <input type="file" class="custom-file-container__custom-file__custom-file-input" name="users_file"
+                      accept="*">
+                    <input type="hidden" name="MAX_FILE_SIZE" value="10485760" />
+                    <span class="custom-file-container__custom-file__custom-file-control"></span>
+                  </label>
+                  <label class="pl-1">Загрузить список юзернеймов/юзерайди <a href="javascript:void(0)"
+                      class="custom-file-container__image-clear" title="Clear Image">Очистить</a></label>
+                  <div class="custom-file custom-file-container__image-preview"></div>
+                </div>
+
+              </div>
+            </div>
+
+            {% if parsered_chats %}
+            <div class="form-group mb-3 mt-2">
+              <label class="pl-1 text-dark">Отпарсенные группы:</label>
+              <table class="table">
+                <tbody>
+                  {% for chat in parsered_chats %}
+                  <tr>
+                    <td>
+                      <div class="n-chk">
+                        <strong>{{ chat.chat_name }}</strong>({{ chat.members.count }})
+                        <span class="pl-4"></span>
+                        <label class="new-control new-checkbox checkbox-success">
+                          <input type="checkbox" name="parsered_chats" value="{{ chat.id }}" class="new-control-input"
+                            multiple {% if chat.id|stringformat:"i" in form.parsered_chats.value %} checked {% endif %}>
+                          <span class="new-control-indicator"></span>
+                          Выбрать
+                        </label>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% endif %}
+
+            <div class="form-group mb-3 mt-2">
+              <label class="pl-1 text-dark"><b>Когда: </b></label><br>
+              <input type="text" id="datetime" value="{% now 'Y-m-d H:i' %}"
+                class="form-control flatpickr flatpickr-input" name="datetime">
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-2 btn-rounded"><b>Создать</b></button>
+          </form>
+
         </div>
-        <button type="submit" class="btn btn-primary mt-3 btn-rounded"><b>Создать</b></button>
-      </form>
+
+        <div class="tab-pane fade {% if tab == 'my-mailings' %}show active{% endif %}" id="underline-my-mailings"
+          role="tabpanel" aria-labelledby="underline-my-mailings-tab">
+          {% if request.user.mailings.exists %}
+          <h5 class="mb-2 text-center"><b>Рассылки</b></h5>
+          <div class="table-responsive mt-4">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th class="text-center">Название</th>
+                  <th class="text-center">Количество пользователей</th>
+                  <th class="text-center">Запланирован</th>
+                  <th class="text-center">Статус</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for mailing in request.user.mailings.all %}
+                <tr>
+                  <td class="text-center">
+                    <strong>{{ mailing.name }}</strong>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge badge-primary">
+                      {{ mailing.users_count }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge outline-badge-success">
+                      {{ mailing.datetime }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge badge-{{ mailing.get_badge_class }}">
+                      {{ mailing.get_status_display }}
+                    </span>
+                  </td>
+                  <td>
+                    {% if mailing.status == mailing.Status.CREATED %}
+                    <div class="dropdown d-inline-block">
+                      <a class="dropdown-toggle" href="#" role="button" id="pendingTask" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-horizontal"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+                      </a>
+
+                      <div class="dropdown-menu left" aria-labelledby="pendingTask" style="will-change: transform; position: absolute; transform: translate3d(-141px, 19px, 0px); top: 0px; left: 0px;" x-placement="bottom-end">
+                          <a class="dropdown-item" class="text-info" href="/mailing/confirm/{{ mailing.id }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check"><polyline points="20 6 9 17 4 12"></polyline></svg>                            Потдвердить
+                          </a>
+                          <a class="dropdown-item" class="text-info" href="/mailing/check/{{ mailing.id }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            Проверить
+                          </a>
+                          <a onclick="cancel_confirm({{ mailing.id }})" class="dropdown-item" class="text-info">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-circle"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                            Отменить
+                          </a>
+                      </div>
+                  </div>                    
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% endif %}
+
+        </div>
+
+        <div class="tab-pane fade {% if tab == 'parser' %}show active{% endif %}" id="underline-parser" role="tabpanel"
+          aria-labelledby="underline-parser-tab">
+          <h5 class="mt-2 mb-4 ml-1"><b>Парсер групп</b></h5>
+          <form method="POST" action="/parsered_chat">
+            {% csrf_token %}
+            <div class="form-group mb-3 mt-2">
+              <label class="pl-1 text-dark"><b>Название: (без @)</b></label><br>
+              <input type="text" class="form-control" name="chat_name">
+            </div>
+            <button class="btn btn-rounded mt-2 btn-primary">Добавить</button>
+          </form>
+
+          {% if request.user.parsered_chats.exists %}
+          <hr>
+          <h5 class="text-center mt-4 mb-2"><b>Отпарсенные группы</b></h5>
+          <div class="table-responsive mt-4">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th class="text-center">Название</th>
+                  <th class="text-center">Количество пользователей</th>
+                  <th class="text-center">Дата и время</th>
+                  <th class="text-center">Статус</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for parsered_chat in request.user.parsered_chats.all %}
+                <tr>
+                  <td class="text-center">
+                    <strong>
+                      {{ parsered_chat.chat_name }}
+                    </strong>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge badge-primary">
+                      {{ parsered_chat.members.count }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge outline-badge-success">
+                      {{ parsered_chat.created }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge badge-{{ parsered_chat.get_badge_class }}">
+                      {{ parsered_chat.get_status_display }}
+                    </span>
+                  </td>
+                  <td>
+                    <a href="/parsered_chat/export/{{ parsered_chat.id }}" download class="mb-2 text-primary">
+                      <strong>Экспорт</strong>
+                    </a>
+                    <a href="/parsered_chat/delete/{{ parsered_chat.id }}" class="mt-2 text-danger">
+                      <strong>Удалить</strong>
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% endif %}
+
+        </div>
+
+      </div>
+
     </div>
   </div>
 </div>
+{% endblock %}
 
-<script src="/static/ckeditor/ckeditor-init.js" data-ckeditor-basepath="/static/ckeditor/ckeditor/" id="ckeditor-init-script"></script>
+{% block scripts %}
+<script>
+  {% if tab == 'parser' %}
+  parser_on_click();
+  {% elif tab == 'my-mailing' %}
+  my_mailings_on_click();
+  {% endif %}
+
+  if (window.location.href.endsWith('#parser')) {
+    $("#underline-mailing-tab").removeClass('active');
+    $("#underline-mailing").removeClass('active');
+    $("#underline-mailing").removeClass('show');
+    $("#underline-parser-tab").addClass('active');
+    $("#underline-parser").addClass('active');
+    $("#underline-parser").addClass('show');
+  }
+
+  if (window.location.href.endsWith('#my-mailings')) {
+    $("#underline-mailing-tab").removeClass('active');
+    $("#underline-mailing").removeClass('active');
+    $("#underline-mailing").removeClass('show');
+    $("#underline-my-mailings-tab").addClass('active');
+    $("#underline-my-mailings").addClass('active');
+    $("#underline-my-mailings").addClass('show');
+  }
+
+  function mailing_on_click() {
+    window.location.href = '/#';
+  }
+
+  function my_mailings_on_click() {
+    window.location.href = '/#my-mailings';
+  }
+
+  function parser_on_click() {
+    window.location.href = '/#parser';
+  }
+</script>
+
+<script>
+  function cancel_confirm(mailing_id) {
+    swal({
+      title: 'Потдверждение',
+      text: "Вы дейстительно хотите отменить рассылку?",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Да',
+      cancelButtonText: 'Отмена',
+      padding: '2em'
+    }).then(function (result) {
+      if (result.value) {
+        window.location.href = `/mailing/delete/${mailing_id}`;
+      }
+    })
+  }
+</script>
+
+<script src="/static/plugins/file-upload/file-upload-with-preview.min.js"></script>
+<script>
+  new FileUploadWithPreview('upload-image');
+  new FileUploadWithPreview('upload-file');
+</script>
+
+<script src="/static/plugins/flatpickr/flatpickr.js"></script>
+<script src="/static/plugins/noUiSlider/nouislider.min.js"></script>
+<script src="/static/plugins/flatpickr/custom-flatpickr.js"></script>
+<script src="/static/plugins/noUiSlider/custom-nouiSlider.js"></script>
+<script src="/static/plugins/bootstrap-range-Slider/bootstrap-rangeSlider.js"></script>
+<script>
+  flatpickr(document.getElementById('datetime'), {
+    enableTime: true,
+    dateFormat: "Y-m-d H:i",
+  });
+</script>
+
+<script src="/static/ckeditor/ckeditor-init.js" data-ckeditor-basepath="/static/ckeditor/ckeditor/"
+  id="ckeditor-init-script"></script>
 <script src="/static/ckeditor/ckeditor/ckeditor.js"></script>
-
 {% endblock %}
